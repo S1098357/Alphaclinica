@@ -39,7 +39,7 @@ class Cliente:
         #self.messaggio = []
         #self.prenotazione = Prenotazione()
         #self.promemoria=''
-        #self.listaPrenotazioniCliente = []
+        self.listaPrenotazioniCliente = []
 
 
     def inserisciNomeCognome (self, nome):

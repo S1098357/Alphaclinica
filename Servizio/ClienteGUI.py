@@ -6,6 +6,8 @@ from Amministrazione.Calendario import Calendario
 from Amministrazione.Segreteria import Segreteria
 
 from Amministrazione.Sistema import Sistema
+from GUI.VisualizzaDottoreGUI import VisualizzaDottoreGUI
+from GUI.VisualizzaTuttePrenotazioniGUI import VisualizzaTuttePrenotazioniGUI
 from MenuClienteGUI import MenuClienteGUI
 from NuovaPrenotazioneGUI import NuovaPrenotazioneGUI
 from RegistrazioneGUI import RegistrazioneGUI
@@ -26,24 +28,32 @@ class ClienteGUI:
         self.numeroDiTelefono = cliente.numeroDiTelefono
         self.codiceFiscale = cliente.codiceFiscale
         self.id = cliente.id
+        self.dottore=None
         self.prenotazione=Prenotazione()
 #        self.messaggio = cliente.messaggio
 #        self.prenotazione = cliente.prenotazione
        # self.promemoria = cliente.promemoria
-        #self.listaPrenotazioniCliente = cliente.listaPrenotazioniCliente
+        self.listaPrenotazioniCliente = cliente.listaPrenotazioniCliente
         self.calendario = Calendario()
         self.sistema = Sistema(self.calendario.Dottori)
         self.segreteria=Segreteria()
+        self.segreteria.leggiClienti()
         self.CC=CartellaClinica(self.id)
         self.cliente=Cliente()
         self.risposta=None
         self.menu = MenuClienteGUI()
         self.appoggio=None
-        self.appoggioDatetime=datetime.date
+        self.appoggioPrenotazione=None
+        self.appoggioDatetime=datetime.datetime
         self.nuovaPrenotazioneGUI=None
         #self.selezionaPrenotazione = SelezionaPrenotazioneGUI(self.sistema.listaPrenotazioni)
         self.selezionaPrenotazione=None
         self.reg=RegistrazioneGUI(False,self.calendario.Dottori)
+        self.visualizzaListaPren=None
+        if self.nomeDottore!='':
+            for dottore in self.sistema.listaDottori:
+                if dottore.nomeCognome == self.nomeDottore:
+                    self.dottore = dottore
         #self.reg2 = RegistrazioneGUI(True)
         i=0
         lista=[]
@@ -94,20 +104,25 @@ class ClienteGUI:
         self.numeroDiTelefono = self.reg.lineEdit_2.text()
         self.codiceFiscale = self.reg.lineEdit_4.text()
         self.CC.patologie = self.reg.textEdit.toPlainText()
-        self.reg.close()
+        self.reg.hide()
         #self.reg.close()
         if self.cliente.inserisciEmail(self.email)==True and self.cliente.inserisciNumeroDiTelefono(self.numeroDiTelefono)==True and self.cliente.inserisciCodiceFiscale(self.codiceFiscale)==True and self.cliente.inserisciNomeCognome(self.nomeCognome)==True:
             self.CC.stampaCartella()
             self.cliente.inserisciPassword(self.password)
             self.cliente.selezionaMedico(self.nomeDottore)
+            for dottore in self.sistema.listaDottori:
+                if dottore.nomeCognome==self.nomeDottore:
+                    self.dottore=dottore
             self.segreteria.listaClienti.append(self.cliente)
-            self.cliente.salvaClienti(self.segreteria.listaClienti)
+            self.segreteria.salvaClienti()
             self.menuClienteDati()
         else:
-            self.registrazioneDati()
-
+            self.reg.show()
 
     def menuClienteDati(self):
+        '''for prenotazione in self.sistema.listaPrenotazioni:
+            if prenotazione.cliente==self.nomeCognome:
+                self.listaPrenotazioniCliente.append(prenotazione)'''
         self.menu.show()
         self.menu.pushButton.clicked.connect(self.ret0)
         self.menu.pushButton_2.clicked.connect(self.ret1)
@@ -116,27 +131,62 @@ class ClienteGUI:
         self.menu.pushButton_5.clicked.connect(self.ret4)
 
     def ret0(self):
-        self.menu.close()
+        self.appoggio=None
+        self.appoggioDatetime=None
+        self.prenotazione=Prenotazione()
+        self.listaPrenotazioniCliente=[]
+        for prenotazione in self.sistema.listaPrenotazioni:
+            if prenotazione.cliente==self.nomeCognome:
+                self.listaPrenotazioniCliente.append(prenotazione)
+        self.menu.hide()
         self.risposta=0
         self.scelta()
 
     def ret1(self):
-        self.menu.close()
+        self.appoggio = None
+        self.appoggioDatetime = None
+        self.prenotazione = Prenotazione()
+        self.listaPrenotazioniCliente = []
+        for prenotazione in self.sistema.listaPrenotazioni:
+            if prenotazione.cliente==self.nomeCognome:
+                self.listaPrenotazioniCliente.append(prenotazione)
+        self.menu.hide()
         self.risposta = 1
         self.scelta()
 
     def ret2(self):
-        self.menu.close()
+        self.appoggio = None
+        self.appoggioDatetime = None
+        self.prenotazione = Prenotazione()
+        self.listaPrenotazioniCliente = []
+        for prenotazione in self.sistema.listaPrenotazioni:
+            if prenotazione.cliente==self.nomeCognome:
+                self.listaPrenotazioniCliente.append(prenotazione)
+        self.menu.hide()
         self.risposta = 2
         self.scelta()
 
     def ret3(self):
-        self.menu.close()
+        self.appoggio = None
+        self.appoggioDatetime = None
+        self.prenotazione = Prenotazione()
+        self.listaPrenotazioniCliente = []
+        for prenotazione in self.sistema.listaPrenotazioni:
+            if prenotazione.cliente==self.nomeCognome:
+                self.listaPrenotazioniCliente.append(prenotazione)
+        self.menu.hide()
         self.risposta = 3
         self.scelta()
 
     def ret4(self):
-        self.menu.close()
+        self.appoggio = None
+        self.appoggioDatetime = None
+        self.prenotazione = Prenotazione()
+        self.listaPrenotazioniCliente = []
+        for prenotazione in self.sistema.listaPrenotazioni:
+            if prenotazione.cliente==self.nomeCognome:
+                self.listaPrenotazioniCliente.append(prenotazione)
+        self.menu.hide()
         self.risposta = 4
         self.scelta()
 
@@ -150,9 +200,11 @@ class ClienteGUI:
                 self.selezionaPrenotazioneDatiModifica()
                 #self.eliminaPrenotazione(prenotazione, self.sistema)
             case 3:
-                self.visualizzaPrenotazione(self.sistema.listaPrenotazioni)
+                self.visualizzaListaPren = VisualizzaTuttePrenotazioniGUI(self.listaPrenotazioniCliente)
+                self.visualizzaTutteDati()
             case 4:
-                self.visualizzaInfoMedico(self.sistema.listaDottori)
+                self.visualizzaDottore=VisualizzaDottoreGUI(self.dottore)
+                self.visualizzaInfoMedicoDati()
 
 
     def richiediPrenotazione(self, listaPrenotazioni, listaDottori):
@@ -161,21 +213,20 @@ class ClienteGUI:
         lista=[]
         for dottore in listaDottori:
             if dottore.nomeCognome == self.nomeDottore:
-                lista.append(dottore.OrarioLavoro[self.appoggio])
+                lista.append(datetime.datetime.combine(self.appoggioDatetime.date(),dottore.OrarioLavoro[self.appoggio]))
         k=0
         while k <= 23:
             minTot = lista[k].hour * 60 + lista[k].minute
             minTot += 15
-            lista.append(datetime.time(minTot // 60, (minTot % 60)))
+            lista.append(datetime.datetime.combine(self.appoggioDatetime.date(),datetime.time(minTot // 60, (minTot % 60))))
             k+=1
         listaPrenotate = []
         for prenotazione in listaPrenotazioni:
-            if prenotazione.dataOra.date()==self.appoggioDatetime:
+            #print(prenotazione.dataOra.date(),self.appoggioDatetime.date())
+            if prenotazione.dataOra.date() == self.appoggioDatetime.date():
                 listaPrenotate.append(prenotazione.dataOra)
-        #listaFinale = lista - listaPrenotate
-        differenza1 = set(lista).difference(set(listaPrenotate))
-        differenza2 = set(listaPrenotate).difference(set(lista))
-        listaFinale=list(differenza1.union(differenza2))
+        listaFinale=list(set(lista)-set(listaPrenotate))
+        listaFinale=sorted(listaFinale)
         #pren =self.prenotazione()
         self.nuovaPrenotazioneGUI = NuovaPrenotazioneGUI(listaFinale)
         self.nuovaPrenotazioneDati()
@@ -205,22 +256,13 @@ class ClienteGUI:
         giorno,scarto=self.selezionaGiorno.comboBox.currentText().split(' ')
         self.appoggioDatetime=datetime.strptime(giorno,'%y-%m-%d')
         self.appoggio=self.appoggioDatetime.weekday()
-
-
-        #match self.selezionaGiorno.comboBox_2.currentText():
-            #case '10.00-16.00':
-                #self.appoggioDatetime = datetime.time(hours=10.00)
-            #case '11.00-17.00':
-                #self.appoggioDatetime = datetime.time(hours=11.00)
-            #case '12.00-18.00':
-                #self.appoggioDatetime = datetime.time(hours=12.00)
         self.richiediPrenotazione(self.sistema.listaPrenotazioni, self.sistema.listaDottori)
 
     def selezionaGiornoIndietro(self):
         self.selezionaGiorno.close()
         #self.appoggioDatetime=None
-        self.appoggio=None
-        self.menuClienteDati()
+        self.menu.show()
+
 
     def nuovaPrenotazioneDati(self):
         self.nuovaPrenotazioneGUI.show()
@@ -234,6 +276,8 @@ class ClienteGUI:
         self.prenotazione.dataOra=datetime.strptime(ora,'%y-%m-%d %H:%M')
         self.prenotazione.tipo = self.nuovaPrenotazioneGUI.comboBox.currentText()
         self.prenotazione.note=self.nuovaPrenotazioneGUI.textEdit.toPlainText()
+        self.prenotazione.cliente=self.nomeCognome
+        self.eliminaPrenotazione(self.appoggioPrenotazione,self.sistema)
         self.nuovaPrenotazioneGUI.close()
         self.nuovaPrenotazioneProsegui()
 
@@ -242,7 +286,7 @@ class ClienteGUI:
         self.prenotazione.tipo = None
         self.prenotazione.note = None
         self.nuovaPrenotazioneGUI.close()
-        self.menuClienteDati()
+        self.menu.show()
 
     def nuovaPrenotazioneProsegui(self):
         if self.prenotazione.dataOra!=None and self.prenotazione.note!=None and self.prenotazione.tipo!=None:
@@ -256,65 +300,84 @@ class ClienteGUI:
             self.prenotazione.dottore=self.nomeDottore
             self.sistema.listaPrenotazioni.append(self.prenotazione)
             self.sistema.salvaPrenotazioni()
-        self.menuClienteDati()
+        self.menu.show()
 
     def selezionaPrenotazioneDatiElimina(self):
-        if self.sistema.listaPrenotazioni!=[]:
-            self.selezionaPrenotazione = SelezionaPrenotazioneGUI(self.sistema.listaPrenotazioni)
-            self.selezionaPrenotazione.show()
-            self.selezionaPrenotazione.pushButton.clicked.connect(self.selezionaPrenotazioneOK)
-            self.selezionaPrenotazione.pushButton_2.clicked.connect(self.selezionaPrenotazioneIndietro)
-        else:
-            self.menuClienteDati()
+        self.selezionaPrenotazione = SelezionaPrenotazioneGUI(self.listaPrenotazioniCliente)
+        self.selezionaPrenotazione.show()
+        self.selezionaPrenotazione.pushButton.clicked.connect(self.selezionaPrenotazioneOK)
+        self.selezionaPrenotazione.pushButton_2.clicked.connect(self.selezionaPrenotazioneIndietro)
 
     def selezionaPrenotazioneOK(self):
         from datetime import datetime
-        for prenotazione in self.selezionaPrenotazione.lista:
-            if prenotazione.dataOra == datetime.strptime(self.selezionaPrenotazione.comboBox.currentText(),'%y-%m-%d %H:%M'):
-                self.prenotazione=prenotazione
-        self.selezionaPrenotazione.close()
-        self.eliminaPrenotazione(self.prenotazione, self.sistema)
-        #self.menuClienteDati()
+        if self.sistema.listaPrenotazioni != []:
+            for prenotazione in self.selezionaPrenotazione.lista:
+                if prenotazione.dataOra == datetime.strptime(self.selezionaPrenotazione.comboBox.currentText(),'%y-%m-%d %H:%M'):
+                    self.prenotazione=prenotazione
+            self.selezionaPrenotazione.close()
+            self.eliminaPrenotazione(self.prenotazione, self.sistema)
+        else:
+            self.menu.show()
 
     def selezionaPrenotazioneIndietro(self):
         self.prenotazione=None
         self.selezionaPrenotazione.close()
-        self.menuClienteDati()
+        self.menu.show()
 
     def eliminaPrenotazione(self,prenotazione,sistema):
         for elem in sistema.listaPrenotazioni:
             if elem==prenotazione:
                 sistema.listaPrenotazioni.remove(prenotazione)
+                self.listaPrenotazioniCliente.remove(prenotazione)
         sistema.salvaPrenotazioni()
-        self.menuClienteDati()
+        self.menu.show()
 
     def selezionaPrenotazioneDatiModifica(self):
-        if self.sistema.listaPrenotazioni!=[]:
-            self.selezionaPrenotazione = SelezionaPrenotazioneGUI(self.sistema.listaPrenotazioni)
-            self.selezionaPrenotazione.show()
-            self.selezionaPrenotazione.pushButton.clicked.connect(self.selezionaPrenotazioneModificaOK)
-            self.selezionaPrenotazione.pushButton_2.clicked.connect(self.selezionaPrenotazioneModificaIndietro)
-        else:
-            self.menuClienteDati()
+        self.selezionaPrenotazione = SelezionaPrenotazioneGUI(self.listaPrenotazioniCliente)
+        self.selezionaPrenotazione.show()
+        self.selezionaPrenotazione.pushButton.clicked.connect(self.selezionaPrenotazioneModificaOK)
+        self.selezionaPrenotazione.pushButton_2.clicked.connect(self.selezionaPrenotazioneModificaIndietro)
 
     def selezionaPrenotazioneModificaOK(self):
         from datetime import datetime
-        for prenotazione in self.selezionaPrenotazione.lista:
-            if prenotazione.dataOra == datetime.strptime(self.selezionaPrenotazione.comboBox.currentText(),'%y-%m-%d %H:%M'):
-                self.prenotazione=prenotazione
-        self.selezionaPrenotazione.close()
-        self.eliminaPrenotazioneModifica(self.prenotazione, self.sistema)
+        if self.selezionaPrenotazione.lista==[]:
+            self.selezionaPrenotazione.close()
+            self.menu.show()
+        else:
+            for prenotazione in self.selezionaPrenotazione.lista:
+                if prenotazione.dataOra == datetime.strptime(self.selezionaPrenotazione.comboBox.currentText(),'%y-%m-%d %H:%M'):
+                    #self.prenotazione=prenotazione
+                    self.appoggioPrenotazione=prenotazione
+            self.selezionaPrenotazione.close()
+            self.selezionaGiornoDati()
         #self.menuClienteDati()
 
     def selezionaPrenotazioneModificaIndietro(self):
         self.prenotazione=None
         self.selezionaPrenotazione.close()
-        self.menuClienteDati()
+        self.menu.show()
 
     def eliminaPrenotazioneModifica(self,prenotazione,sistema):
         for elem in sistema.listaPrenotazioni:
             if elem==prenotazione:
                 sistema.listaPrenotazioni.remove(prenotazione)
+                self.listaPrenotazioniCliente.remove(prenotazione)
         sistema.salvaPrenotazioni()
         self.selezionaGiornoDati()
+
+    def visualizzaTutteDati(self):
+        self.visualizzaListaPren.show()
+        self.visualizzaListaPren.pushButton.clicked.connect(self.visualizzaTutteIndietro)
+
+    def visualizzaTutteIndietro(self):
+        self.visualizzaListaPren.close()
+        self.menu.show()
+
+    def visualizzaInfoMedicoDati(self):
+        self.visualizzaDottore.show()
+        self.visualizzaDottore.pushButton.clicked.connect(self.visualizzaInfoMedicoIndietro)
+
+    def visualizzaInfoMedicoIndietro(self):
+        self.visualizzaDottore.close()
+        self.menu.show()
 

@@ -92,12 +92,12 @@ class Segreteria:
         #appoggio={}
         #for cliente in self.listaClienti:
            # appoggio+=cliente.dizio()
-        with open('dati/Clienti.pickle', 'wb+') as f:
+        with open('dati/Cliente.pickle', 'wb+') as f:
             pickle.dump(self.listaClienti, f, pickle.HIGHEST_PROTOCOL)
 
     def leggiClienti(self):
-        if os.path.isfile('dati/Clienti.pickle'):
-            with open('dati/Clienti.pickle', 'rb+') as f:
+        if os.path.isfile('dati/Cliente.pickle'):
+            with open('dati/Cliente.pickle', 'rb+') as f:
                 self.listaClienti = pickle.load(f)
         else:
             return False
